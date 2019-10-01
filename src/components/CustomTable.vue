@@ -1,0 +1,248 @@
+<template>
+  <div>
+    <div class="text-center h3" style="color: #000033">{{tableTitle}}</div>
+    <div style="overflow:auto">
+      <table class="table mt-1" style="overflow-y:scroll">
+        <thead :style="styleTableHead">
+          <th v-for="column in Object.keys(tableColumnData)" :key="column" v-show="tableColumnData[column].display">{{tableColumnData[column].label}}</th>
+          <th width="auto" class="font-italic" style="color: lightgrey;">Manage</th>
+        </thead>
+        <tbody>
+        <tr v-for="(item, index) in tableRowData" :key="index" :rowId="item[rowIdKey]">
+          <td v-for="(column, index) in Object.keys(tableColumnData)" :style="tableColumnData[column].styleTableBody ? tableColumnData[column].styleTableBody : styleTableBody"
+              :key="index" :columnId="column" :editable="tableColumnData[column].editable"
+              v-if="hasValue(item, column) && tableColumnData[column].display==true">
+            {{itemValue(item, column)}}
+          </td>
+          <td class="text-center" style="white-space: nowrap;">
+            <button class="btn btn-sm btn-primary mr-1 ml-1 btn-modify-row" @click="modifyRow"><span class="ti-pencil"></span></button>
+            <button class="btn btn-sm btn-success mr-1 ml-1 btn-valid-row d-none" @click="validChangeRow">
+              <span class="ti-check" id="btnValidCheckLogo"></span>
+              <span class="spinner-border spinner-border-sm d-none" id="btnValidSpinnerLogo" role="status" aria-hidden="true"></span>
+            </button>
+            <button class="btn btn-sm btn-danger mr-1 ml-1 btn-remove-row" @click="removeRow"><span class="ti-trash"></span></button>
+            <button class="btn btn-sm btn-danger mr-1 ml-1 btn-cancel-row d-none" @click="cancelChangeRow"><span class="ti-close"></span></button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="text-center">
+      Column displayed&nbsp;:
+      <button v-for="column in Object.keys(tableColumnData)" :key="column" :customid="column" type="button" class="btn btn-sm m-1"
+              :class="{'btn-outline-secondary':!tableColumnData[column].display, 'text-dark':!tableColumnData[column].display}" @click="toggleColumnDisplay">{{tableColumnData[column].label}}</button>
+      <button type="button" class="btn btn-sm m-1 btn-warning" @click="toggleColumnDisplayReset">Reset</button>
+    </div>
+    <div class="text-center">
+      New row&nbsp;:
+      <button type="button" class="btn btn-sm m-1 btn-primary" @click="$bvModal.show('modalAddRow')">Add a new record</button>
+    </div>
+    <div>
+      <b-modal id="modalAddRow" centered hide-footer hide-header class="p-0">
+        <div class="d-block text-center">
+          <row-form :tableColumnData="tableColumnData" @addNewRow="addRow"></row-form>
+        </div>
+        <b-button class="mt-3" block @click="$bvModal.hide('modalAddRow')">Close Me</b-button>
+      </b-modal>
+    </div>
+    <div>
+      <b-modal id="modalRemoveRow" centered hide-footer hide-header class="p-0">
+        <div class="d-block text-center">
+          Are you sure you want to remove that row ?&nbsp;
+          No rollback possible.
+          <button class="mt-3 p-1 btn btn-danger" block @click="confirmRemove(true)">Remove anymore</button>&nbsp;
+          <button class="mt-3 p-1 btn btn-primary" block @click="confirmRemove(false)">Don't remove</button>
+        </div>
+      </b-modal>
+    </div>
+  </div>
+</template>
+<script>
+import $ from 'jquery';
+import RowForm from "../layout/dashboard/RowForm";
+export default {
+  components: {
+      RowForm
+  },
+  name: 'custom-table',
+  props: {
+    tableColumnDataDefault: Object,
+    tableColumnData: Object,
+    tableRowData: Array,
+    tableTitle: String,
+    pageName: String,
+    styleTableHead: {
+        type: Object,
+        default: function() {
+            return {
+                color: "white",
+                backgroundColor: "black",
+                textAlign: "center"
+            }
+        }
+    },
+    styleTableBody: {
+        type: Object,
+        default: function() {
+            return {
+                textAlign: "center"
+            }
+        }
+    },
+    rowIdKey: String,
+    loadingEnded: Boolean
+  },
+  computed: {
+  },
+  watch: {
+      loadingEnded: function(val){
+          if(val){
+              this.$emit('loadingEndedEvent');
+          }
+      }
+  },
+  methods: {
+      hasValue(item, column){
+          return item[column.toLowerCase()] !== "undefined";
+      },
+      itemValue(item, column) {
+          return item[column.toLowerCase()];
+      },
+      toggleColumnDisplay(el){
+          $(el.srcElement).toggleClass("btn-outline-secondary");
+          $(el.srcElement).toggleClass("text-dark");
+          if(this.tableColumnData.hasOwnProperty($(el.srcElement).attr("customid"))){
+              if (this.tableColumnData[$(el.srcElement).attr("customid")].display == true) {
+                  this.tableColumnData[$(el.srcElement).attr("customid")].display = false;
+                  var updatedLocalStorage = JSON.parse(localStorage.tableColumnData);
+                  updatedLocalStorage[$(el.srcElement).attr("customid")].display = false;
+                  localStorage.tableColumnData = JSON.stringify(updatedLocalStorage);
+              } else {
+                  this.tableColumnData[$(el.srcElement).attr("customid")].display = true;
+                  var updatedLocalStorage = JSON.parse(localStorage.tableColumnData);
+                  updatedLocalStorage[$(el.srcElement).attr("customid")].display = true;
+                  localStorage.tableColumnData = JSON.stringify(updatedLocalStorage);
+              }
+          }
+      },
+      toggleColumnDisplayReset(el){
+          localStorage.tableColumnData = JSON.stringify(this.tableColumnDataDefault);
+          this.$emit('reload');
+      },
+      addRow(el){
+        this.$emit('toggleSpinner');
+        this.$bvModal.hide('modalAddRow');
+        this.$parent.newRow(el);
+      },
+      modifyRow(el){
+          var element;
+          if($(el.srcElement).is("button")){
+              element = $(el.srcElement);
+          }else{
+              element = $(el.srcElement).parent();
+          }
+          element.addClass("d-none");
+          element.parent().children(".btn-valid-row").removeClass("d-none");
+          element.parent().children(".btn-remove-row").addClass("d-none");
+          element.parent().children(".btn-cancel-row").removeClass("d-none");
+
+          var cells = element.parent().parent().children();
+          for(var i=0; i<cells.length-1; i++){
+              if ($(cells[i]).attr("editable")){
+                  $(cells[i]).html("<input type='text' class='form-control' name='"+ $(cells[i]).attr("columnId")+ "' value='"+ $(cells[i]).html().trim() +"' style='min-width: 90px;'>")
+              }
+          }
+      },
+      confirmRemove(confirmOrNot){
+          this.$emit('confirmRemove', confirmOrNot);
+      },
+      removeRow(el){
+          var element;
+          if($(el.srcElement).is("button")){
+              element = $(el.srcElement);
+          }else{
+              element = $(el.srcElement).parent();
+          }
+          var idRow = element.parent().parent().attr("rowId");
+          this.$bvModal.show('modalRemoveRow');
+          this.$on('confirmRemove', function(confirmOrNot){
+              this.$bvModal.hide('modalRemoveRow');
+              if(confirmOrNot){
+                  this.$emit('toggleSpinner');
+                  this.$parent.removeRow(idRow);
+              }
+          });
+      },
+      validChangeRow(el){
+          var element;
+          if($(el.srcElement).is("button")){
+              element = $(el.srcElement);
+          }else{
+              element = $(el.srcElement).parent();
+          }
+
+          var updatedRow = {};
+          var idRow = element.parent().parent().attr("rowId");
+          var cells = element.parent().parent().children();
+
+          for (var i=0; i<cells.length-1; i++) {
+              if (this.tableColumnData.hasOwnProperty($(cells[i]).attr("columnId"))) {
+                  if (this.tableColumnData[$(cells[i]).attr("columnId")].editable) {
+                      updatedRow[$(cells[i]).attr("columnId")] = $(cells[i]).children("input").val();
+                  }
+              }
+          }
+          this.$emit('toggleSpinner');
+          this.$parent.validChange(updatedRow, idRow);
+          this.$on('loadingEndedEvent', function(){
+              for(var i=0; i<this.tableRowData.length; i++) {
+                  if(this.tableRowData[i][this.rowIdKey]==idRow){
+                      for (var j=0; j<cells.length-1; j++) {
+                          if (this.tableColumnData.hasOwnProperty($(cells[j]).attr("columnId"))) {
+                              if (this.tableColumnData[$(cells[j]).attr("columnId")].editable) {
+                                  $(cells[j]).html(this.tableRowData[i][$(cells[j]).attr("columnId")])
+                              }
+                          }
+                      }
+                      break;
+                  }
+              }
+              element.addClass("d-none");
+              element.parent().children(".btn-modify-row").removeClass("d-none");
+              element.parent().children(".btn-remove-row").removeClass("d-none");
+              element.parent().children(".btn-cancel-row").addClass("d-none");
+              this.$parent.loadingEndedFalse();
+          });
+      },
+      cancelChangeRow(el){
+          var element;
+          if($(el.srcElement).is("button")){
+              element = $(el.srcElement);
+          }else{
+              element = $(el.srcElement).parent();
+          }
+
+          var idRow = element.parent().parent().attr("rowId");
+          var cells = element.parent().parent().children();
+          for(var i=0; i<this.tableRowData.length; i++) {
+              if(this.tableRowData[i][this.rowIdKey]==idRow){
+                  for (var j=0; j<cells.length-1; j++) {
+                      if (this.tableColumnData.hasOwnProperty($(cells[j]).attr("columnId"))) {
+                          if (this.tableColumnData[$(cells[j]).attr("columnId")].editable) {
+                              $(cells[j]).html(this.tableRowData[i][$(cells[j]).attr("columnId")])
+                          }
+                      }
+                  }
+                  break;
+              }
+          }
+          element.addClass("d-none");
+          element.parent().children(".btn-modify-row").removeClass("d-none");
+          element.parent().children(".btn-remove-row").removeClass("d-none");
+          element.parent().children(".btn-valid-row").addClass("d-none");
+      }
+  }
+};
+</script>
+<style>
+</style>

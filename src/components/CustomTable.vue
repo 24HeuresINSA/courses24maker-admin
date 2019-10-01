@@ -27,15 +27,17 @@
         </tbody>
       </table>
     </div>
-    <div class="text-center">
+    <div class="text-center p-2 mb-2">
       Column displayed&nbsp;:
+      <button type="button" class="btn btn-sm m-1 btn-warning" @click="toggleColumnDisplayReset">Reset</button>
       <button v-for="column in Object.keys(tableColumnData)" :key="column" :customid="column" type="button" class="btn btn-sm m-1"
               :class="{'btn-outline-secondary':!tableColumnData[column].display, 'text-dark':!tableColumnData[column].display}" @click="toggleColumnDisplay">{{tableColumnData[column].label}}</button>
-      <button type="button" class="btn btn-sm m-1 btn-warning" @click="toggleColumnDisplayReset">Reset</button>
     </div>
-    <div class="text-center">
-      New row&nbsp;:
+    <div class="text-center p-2" style="background-color: rgba(49,69,73,0.1)">
       <button type="button" class="btn btn-sm m-1 btn-primary" @click="$bvModal.show('modalAddRow')">Add a new record</button>
+      <download-csv :data="this.tableRowData" :name="tableTitle" style="display: inline-block">
+        <button type="button" class="btn btn-sm m-1 btn-warning" @click="exportToCSV">Export in CSV</button>
+      </download-csv>
     </div>
     <div>
       <b-modal id="modalAddRow" centered hide-footer hide-header class="p-0">
@@ -240,6 +242,9 @@ export default {
           element.parent().children(".btn-modify-row").removeClass("d-none");
           element.parent().children(".btn-remove-row").removeClass("d-none");
           element.parent().children(".btn-valid-row").addClass("d-none");
+      },
+      exportToCSV(){
+
       }
   }
 };

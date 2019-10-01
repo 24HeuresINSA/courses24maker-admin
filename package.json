@@ -19,6 +19,7 @@
     "vue": "^2.5.17",
     "vue-axios": "^2.1.4",
     "vue-clickaway": "^2.1.0",
+    "vue-json-csv": "^1.2.8",
     "vue-notifyjs": "^0.3.0",
     "vue-router": "^3.0.1"
   },

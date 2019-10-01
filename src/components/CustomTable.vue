@@ -1,14 +1,23 @@
 <template>
   <div>
     <div class="text-center h3" style="color: #000033">{{tableTitle}}</div>
+    <div class="pb-2 pt-2 text-center">
+      <b-form-input size="sm" class="ml-0 mb-1 mt-1 mr-1" v-model="search" placeholder="Filter" style="max-width: 300px; display: inline-block"></b-form-input>
+      <div style="display: inline-block">
+        <button type="button" class="btn btn-sm m-1 btn-primary" @click="$bvModal.show('modalAddRow')">Add a new record</button>
+        <download-csv :data="this.tableRowData" :name="tableTitle" style="display: inline-block">
+          <button type="button" class="btn btn-sm m-1 btn-warning" @click="exportToCSV">Export in CSV</button>
+        </download-csv>
+      </div>
+    </div>
     <div style="overflow:auto">
       <table class="table mt-1" style="overflow-y:scroll">
         <thead :style="styleTableHead">
-          <th v-for="column in Object.keys(tableColumnData)" :key="column" v-show="tableColumnData[column].display">{{tableColumnData[column].label}}</th>
+          <th v-for="column in Object.keys(tableColumnData)" :key="column" v-show="tableColumnData[column].display" @click="sortBy(column)">{{tableColumnData[column].label}}</th>
           <th width="auto" class="font-italic" style="color: lightgrey;">Manage</th>
         </thead>
         <tbody>
-        <tr v-for="(item, index) in tableRowData" :key="index" :rowId="item[rowIdKey]">
+        <tr v-for="(item, index) in getTableRowData" :key="index" :rowId="item[rowIdKey]">
           <td v-for="(column, index) in Object.keys(tableColumnData)" :style="tableColumnData[column].styleTableBody ? tableColumnData[column].styleTableBody : styleTableBody"
               :key="index" :columnId="column" :editable="tableColumnData[column].editable"
               v-if="hasValue(item, column) && tableColumnData[column].display==true">
@@ -32,12 +41,6 @@
       <button type="button" class="btn btn-sm m-1 btn-warning" @click="toggleColumnDisplayReset">Reset</button>
       <button v-for="column in Object.keys(tableColumnData)" :key="column" :customid="column" type="button" class="btn btn-sm m-1"
               :class="{'btn-outline-secondary':!tableColumnData[column].display, 'text-dark':!tableColumnData[column].display}" @click="toggleColumnDisplay">{{tableColumnData[column].label}}</button>
-    </div>
-    <div class="text-center p-2" style="background-color: rgba(49,69,73,0.1)">
-      <button type="button" class="btn btn-sm m-1 btn-primary" @click="$bvModal.show('modalAddRow')">Add a new record</button>
-      <download-csv :data="this.tableRowData" :name="tableTitle" style="display: inline-block">
-        <button type="button" class="btn btn-sm m-1 btn-warning" @click="exportToCSV">Export in CSV</button>
-      </download-csv>
     </div>
     <div>
       <b-modal id="modalAddRow" centered hide-footer hide-header class="p-0">
@@ -94,7 +97,25 @@ export default {
     rowIdKey: String,
     loadingEnded: Boolean
   },
+  data(){
+      return {
+          search: "",
+          sortKey: "",
+          orderSort: "asc"
+      }
+  },
   computed: {
+      getTableRowData() {
+          return _.orderBy(this.tableRowData.filter(item => {
+              var res = false;
+              Object.values(item).forEach(ii => {
+                  if(String(ii).includes(this.search)){
+                      res=true;
+                  }
+              });
+              return res;
+          }), this.sortKey, this.orderSort);
+      }
   },
   watch: {
       loadingEnded: function(val){
@@ -108,7 +129,18 @@ export default {
           return item[column.toLowerCase()] !== "undefined";
       },
       itemValue(item, column) {
-          return item[column.toLowerCase()];
+          return item[column];
+      },
+      sortBy: function(sortKey) {
+          if(this.orderSort == "asc"){
+              this.orderSort = "desc";
+          }else{
+              this.orderSort = "asc";
+          }
+          if(this.sortKey != sortKey){
+              this.orderSort="asc";
+          }
+          this.sortKey = sortKey;
       },
       toggleColumnDisplay(el){
           $(el.srcElement).toggleClass("btn-outline-secondary");
@@ -244,8 +276,8 @@ export default {
           element.parent().children(".btn-valid-row").addClass("d-none");
       },
       exportToCSV(){
-
       }
+
   }
 };
 </script>

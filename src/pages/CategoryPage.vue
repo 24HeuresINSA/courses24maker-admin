@@ -1,8 +1,11 @@
 <template>
     <div class="row">
       <div class="col-12">
-        <custom-table :tableColumnData="tableColumnData" :tableColumnDataDefault="tableColumnDataDefault" :tableRowData="tableRowData" :loadingEnded="loadingEnded"
-                      :tableTitle="tableTitle" :rowIdKey="rowIdKey" :pageName="pageName" @reload="reload" @toggleSpinner="toggleSpinner"></custom-table>
+        <card class="card">
+          <custom-table :tableColumnData="tableColumnData" :tableColumnDataDefault="tableColumnDataDefault" :tableRowData="tableRowData" :loadingEnded="loadingEnded"
+                        :modifyInTheTable="true" :tableTitle="tableTitle" :rowIdKey="rowIdKey" :pageName="pageName"
+                        @reload="reload" @toggleSpinner="toggleSpinner" @rowToDetail="rowToDetail"></custom-table>
+        </card>
       </div>
     </div>
 </template>
@@ -43,9 +46,13 @@ export default {
     },
     mounted(){
       if (localStorage.tableColumnData) {
-          this.tableColumnData = JSON.parse(localStorage.tableColumnData);
+        if(JSON.parse(localStorage.tableColumnData)[this.pageName]){
+            this.tableColumnData = JSON.parse(localStorage.tableColumnData)[this.pageName];
+        }
       } else {
-          localStorage.tableColumnData = JSON.stringify(tableColumnDataDefault)
+          var updatedLocalStorage = {};
+          updatedLocalStorage[this.pageName] = this.tableColumnDataDefault;
+          localStorage.tableColumnData = JSON.stringify(updatedLocalStorage)
       }
 
       this.axios.request({
@@ -137,10 +144,17 @@ export default {
         },
         reload(){
             if (localStorage.tableColumnData) {
-                this.tableColumnData = JSON.parse(localStorage.tableColumnData);
-            } else {
-                localStorage.tableColumnData = JSON.stringify(this.tableColumnDataDefault);
+                if(JSON.parse(localStorage.tableColumnData)[this.pageName]){
+                    this.tableColumnData = JSON.parse(localStorage.tableColumnData)[this.pageName];
+                } else {
+                    var updatedLocalStorage = JSON.parse(localStorage.tableColumnData);
+                    updatedLocalStorage[this.pageName] = this.tableColumnDataDefault;
+                    localStorage.tableColumnData = JSON.stringify(updatedLocalStorage)
+                }
             }
+        },
+        rowToDetail(idRow){
+            console.log(idRow);
         },
         toggleSpinner() {
             this.$emit('toggleSpinner')

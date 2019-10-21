@@ -8,10 +8,10 @@
       </card>
       <b-row class="" style="">
         <b-col class="m-auto">
-          <card style="background-color: rgba(179,229,229,0.25)">
+          <card style="background-color: white">
             <div class="text-center h3" style="color: #000033">PARTICIPANT DETAILS</div>
             <b-col cols="12" sm="6" lg="4" xl="3" class="pt-0 pb-1 d-inline-block" v-for="(item, index) in this.tableRowDataFiltered">
-              <participant-card-detail :key="index" :participantData="item" :participantId="participantIdToDetail"></participant-card-detail>
+              <participant-card-detail :key="index" :participantData="item" :participantId="participantIdToDetail" @openModalUpdateRow="openModalUpdateRow"></participant-card-detail>
             </b-col>
           </card>
         </b-col>
@@ -157,7 +157,7 @@
                     url: "/participants/",
                     method: "post",
                     data: {
-                        participant: newRow.participant
+                        participant: newRow
                     }
                 })
                     .then(response => {
@@ -220,7 +220,6 @@
             },
             openModalUpdateRow(idRow){
                 this.showModal = true;
-                console.log(idRow)
                 this.participantIdToUpdate = idRow;
                 if(this.updateRowModal==true){
                     this.updateRowModal = false;
@@ -254,7 +253,6 @@
             },
             tableRowDataFilteredToDetail(el){
                 this.tableRowDataFiltered = el;
-                console.log(this.tableRowDataFiltered)
             }
         }
     };

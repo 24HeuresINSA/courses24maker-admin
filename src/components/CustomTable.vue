@@ -214,10 +214,10 @@ export default {
       },
       modifyRow(el){
           var element;
-          if($(el.srcElement).is("button")){
-              element = $(el.srcElement);
-          }else{
-              element = $(el.srcElement).parent();
+          if ($(el.target).is("button")) {
+              element = $(el.target);
+          } else{
+              element = $(el.target).parent();
           }
           var idRow = element.parent().parent().attr("rowId");
 
@@ -234,6 +234,10 @@ export default {
                   }
               }
           } else {
+              console.log(element.parent().parent().parent().children());
+              element.parent().parent().parent().children("tr").css("background-color", "rgb(255, 252, 244)");
+              element.parent().parent().css("background-color","rgba(158, 233, 244, 0.3)");
+              this.$emit("rowToDetail", idRow);
               this.$emit("openModalUpdateRow", idRow);
           }
       },
@@ -331,8 +335,20 @@ export default {
         this.$emit('openModalNewRow');
       },
       rowToDetail(el){
-          var idRow = $(el.srcElement).parent().attr("rowId");
-          this.$emit("rowToDetail", idRow);
+        if (!$(el.target).is("button") && !$(el.target).parent().is("button")) {
+            $(el.target).parent().parent().children("tr").css("background-color", "rgb(255, 252, 244)");
+            $(el.target).parent().css("background-color", "rgba(158, 233, 244, 0.3)");
+            var idRow = $(el.target).parent().attr("rowId");
+        } else {
+            var element;
+            if ($(el.target).is("button")) {
+                element = $(el.target);
+            } else{
+                element = $(el.target).parent();
+            }
+            var idRow = element.parent().parent().attr("rowId");
+        }
+        this.$emit("rowToDetail", idRow);
       }
   }
 };

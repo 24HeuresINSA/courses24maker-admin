@@ -260,7 +260,7 @@
                 delete this.form.participant.participant_team;
                 if (this.newRow == true) {
                     this.$parent.toggleSpinner();
-                    this.$parent.newRow(this.form);
+                    this.$parent.newRow(this.form.participant);
                 } else {
                     this.$parent.toggleSpinner();
                     this.$parent.validChange(this.form.participant, this.participantIdToUpdate);

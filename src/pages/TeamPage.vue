@@ -4,24 +4,33 @@
       <card class="card">
         <custom-table :tableColumnData="tableColumnData" :tableColumnDataDefault="tableColumnDataDefault" :tableRowData="tableRowData" :loadingEnded="loadingEnded"
                       :modifyInTheTable="false" :tableTitle="tableTitle" :rowIdKey="rowIdKey" :pageName="pageName"
-                      @reload="reload" @toggleSpinner="toggleSpinner" @rowToDetail="rowToDetail"></custom-table>
+                      @reload="reload" @toggleSpinner="toggleSpinner" @rowToDetail="rowToDetail" @openModalNewRow="openModalNewRow" @openModalUpdateRow="openModalUpdateRow" @tableRowDataFiltered="tableRowDataFilteredToDetail"></custom-table>
       </card>
-      <team-card-detail :teamId="teamIdToDetail" tableTitle="DETAIL OF A TEAM"></team-card-detail>
+      <b-row class="" style="">
+        <b-col class="m-auto">
+          <card style="background-color: white">
+            <div class="text-center h3" style="color: #000033">TEAM DETAILS</div>
+            <b-col cols="12" class="pt-0 pb-1 d-inline-block" v-for="(item, index) in this.tableRowDataFiltered">
+              <team-card-detail :key="index" :teamData="item" :teamId="teamIdToDetail" @openModalUpdateRow="openModalUpdateRow"></team-card-detail>
+            </b-col>
+          </card>
+        </b-col>
+      </b-row>
+      <team-modal :teamIdToUpdate="teamIdToUpdate" :addNewRowModal="openNewRowModal" :updateRowModal="updateRowModal" :show="showModal"></team-modal>
     </div>
-    <card class="card">
-
-    </card>
   </div>
 </template>
 <script>
     import { CustomTable } from "@/components";
     import NotificationTemplate from "./Notifications/NotificationTemplate";
     import TeamCardDetail from "../components/TeamCardDetail";
+    import TeamModal from "../components/TeamModal";
 
     const tableColumnDataDefault = {
         team_id: {label: "Id", display: false, editable: false},
         team_name: {label: "Team name", display: true, editable: true},
         team_category_label: {label: "Category", display: true, editable: false},
+        team_number_participant: {label: "Participant Nb", display: true, editable: false},
         team_valid: {label: "Valid", display: true, editable: true},
         team_manager_name: {label: "Manager Name", display: true, editable: false},
         team_manager_surname: {label: "Manager Surname", display: true, editable: false},
@@ -35,19 +44,25 @@
 
     export default {
         components: {
+            CustomTable,
             TeamCardDetail,
-            CustomTable
+            TeamModal
         },
         data() {
             return {
                 tableColumnDataDefault: tableColumnDataDefault,
                 tableColumnData: tableColumnDataDefault,
                 tableRowData: tableRowData,
+                tableRowDataFiltered: tableRowData,
                 tableTitle: "TEAM LIST",
                 rowIdKey: rowIdKey,
                 pageName: "team",
                 loadingEnded: false,
-                teamIdToDetail: ""
+                teamIdToDetail: "",
+                teamIdToUpdate: "",
+                openNewRowModal: false,
+                updateRowModal: false,
+                showModal: false
             };
         },
         mounted(){
@@ -61,13 +76,13 @@
                 localStorage.tableColumnData = JSON.stringify(updatedLocalStorage)
             }
 
-            this.axios.request({
-                url: "/teams",
+            var promiseTeams = this.axios.request({
+                url: "/teams/?participants=true&category=true&manager=true",
                 method: "get"
-            })
-                .then(response => {
-                    var tableRowData1 = response.data.teams;
-                    this.tableRowData = tableRowData1.filter(el => {
+            });
+            Promise.all([promiseTeams])
+                .then(results => {
+                    this.tableRowData = results[0].data.teams.filter(el => {
                         el.team_category_label = el.team_category.category_label;
                         if(el.team_manager) {
                             el.team_manager_name = el.team_manager.participant_name;
@@ -75,9 +90,15 @@
                             el.team_manager_telephone = el.team_manager.participant_telephone;
                             el.team_manager_email = el.team_manager.participant_email;
                         }
+                        if(el.team_participants) {
+                            el.team_number_participant = el.team_participants.length;
+                        }
                         return el;
-                    })
+                    });
                 })
+                .catch(errors => {
+                    console.log('err')
+                });
         },
         methods: {
             notifyVue(message) {
@@ -90,6 +111,16 @@
                     timeout: 5000
                 });
             },
+            notifyVueSuccess(message) {
+                this.$notify({
+                    component: NotificationTemplate,
+                    horizontalAlign: 'center',
+                    verticalAlign: 'top',
+                    type: "success",
+                    message: message,
+                    timeout: 5000
+                });
+            },
             validChange(updatedRow, idRow){
                 this.axios.request({
                     url: "/teams/"+idRow,
@@ -98,50 +129,54 @@
                         team: updatedRow
                     }
                 })
-                    .then(response => {
-                        this.axios.request({
-                            url: "/teams",
-                            method: "get"
-                        })
-                            .then(response => {
-                                this.toggleSpinner();
-                                var tableRowData1 = response.data.teams;
-                                this.tableRowData = tableRowData1.filter(el => {
-                                    el.team_category_label = el.team_category.category_label;
-                                    if(el.team_manager) {
-                                        el.team_manager_name = el.team_manager.participant_name;
-                                        el.team_manager_surname = el.team_manager.participant_surname;
-                                        el.team_manager_telephone = el.team_manager.participant_telephone;
-                                        el.team_manager_email = el.team_manager.participant_email;
-                                    }
-                                    return el;
-                                })
-                                this.loadingEnded = true;
-                            })
+                .then(response => {
+                    this.axios.request({
+                        url: "/teams/?participants=true&category=true&manager=true",
+                        method: "get"
                     })
-                    .catch(error => {
+                    .then(response2 => {
                         this.toggleSpinner();
-                        this.notifyVue(error.response.data.message.en);
-                        this.loadingEnded = true;
+                        this.tableRowData = response2.data.teams.filter(el => {
+                            el.team_category_label = el.team_category.category_label;
+                            if(el.team_manager) {
+                                el.team_manager_name = el.team_manager.participant_name;
+                                el.team_manager_surname = el.team_manager.participant_surname;
+                                el.team_manager_telephone = el.team_manager.participant_telephone;
+                                el.team_manager_email = el.team_manager.participant_email;
+                            }
+                            if(el.team_participants) {
+                                el.team_number_participant = el.team_participants.length;
+                            }
+                            return el;
+                        });
+                        this.notifyVueSuccess("Team updated !");
+                        this.showModal = false;
+                        this.toggleLoadingValue();
                     })
+                })
+                .catch(error => {
+                    this.toggleSpinner();
+                    this.notifyVue(error.response.data.message.en);
+                    this.toggleLoadingValue();
+                })
             },
             newRow(newRow){
                 this.axios.request({
                     url: "/teams/",
                     method: "post",
                     data: {
-                        team: newRow
+                        team: newRow.team,
+                        team_manager: newRow.team_manager
                     }
                 })
                     .then(response => {
                         this.axios.request({
-                            url: "/teams",
+                            url: "/teams/?participants=true&category=true&manager=true",
                             method: "get"
                         })
-                            .then(response => {
+                            .then(response2 => {
                                 this.toggleSpinner();
-                                var tableRowData1 = response.data.teams;
-                                this.tableRowData = tableRowData1.filter(el => {
+                                this.tableRowData = response2.data.teams.filter(el => {
                                     el.team_category_label = el.team_category.category_label;
                                     if(el.team_manager) {
                                         el.team_manager_name = el.team_manager.participant_name;
@@ -149,8 +184,13 @@
                                         el.team_manager_telephone = el.team_manager.participant_telephone;
                                         el.team_manager_email = el.team_manager.participant_email;
                                     }
+                                    if(el.team_participants) {
+                                        el.team_number_participant = el.team_participants.length;
+                                    }
                                     return el;
-                                })
+                                });
+                                this.notifyVueSuccess("Team added !");
+                                this.showModal = false;
                             })
                     })
                     .catch(error => {
@@ -163,30 +203,53 @@
                     url: "/teams/"+idRow,
                     method: "delete",
                 })
-                    .then(response => {
-                        this.axios.request({
-                            url: "/teams",
-                            method: "get"
-                        })
-                            .then(response => {
-                                this.toggleSpinner();
-                                var tableRowData1 = response.data.teams;
-                                this.tableRowData = tableRowData1.filter(el => {
-                                    el.team_category_label = el.team_category.category_label;
-                                    if(el.team_manager) {
-                                        el.team_manager_name = el.team_manager.participant_name;
-                                        el.team_manager_surname = el.team_manager.participant_surname;
-                                        el.team_manager_telephone = el.team_manager.participant_telephone;
-                                        el.team_manager_email = el.team_manager.participant_email;
-                                    }
-                                    return el;
-                                })
-                            })
+                .then(response => {
+                    this.axios.request({
+                        url: "/teams/?participants=true&category=true&manager=true",
+                        method: "get"
                     })
-                    .catch(error => {
+                    .then(response2 => {
                         this.toggleSpinner();
-                        this.notifyVue(error.response.data.message.en);
+                        this.tableRowData = response2.data.teams.filter(el => {
+                            el.team_category_label = el.team_category.category_label;
+                            if(el.team_manager) {
+                                el.team_manager_name = el.team_manager.participant_name;
+                                el.team_manager_surname = el.team_manager.participant_surname;
+                                el.team_manager_telephone = el.team_manager.participant_telephone;
+                                el.team_manager_email = el.team_manager.participant_email;
+                            }
+                            if(el.team_participants) {
+                                el.team_number_participant = el.team_participants.length;
+                            }
+                            return el;
+                        });
+                        this.notifyVueSuccess("Team removed for ever !");
                     })
+                })
+                .catch(error => {
+                    this.toggleSpinner();
+                    this.notifyVue(error.response.data.message.en);
+                })
+            },
+            openModalNewRow(){
+              this.showModal = true;
+              if (this.openNewRowModal == true) {
+                  this.openNewRowModal = false;
+              } else {
+                  this.openNewRowModal = true;
+              }
+            },
+            openModalUpdateRow(idRow){
+                this.showModal = true;
+                this.teamIdToUpdate = idRow;
+                if(this.updateRowModal==true){
+                    this.updateRowModal = false;
+                }else{
+                    this.updateRowModal = true;
+                }
+            },
+            rowToDetail(idRow){
+                this.teamIdToDetail = idRow;
             },
             reload(){
                 if (localStorage.tableColumnData) {
@@ -202,11 +265,15 @@
             toggleSpinner() {
                 this.$emit('toggleSpinner')
             },
-            loadingEndedFalse(){
-                this.loadingEnded = false;
+            toggleLoadingValue(){
+                if(this.loadingEnded == true){
+                    this.loadingEnded = false;
+                } else {
+                    this.loadingEnded = true;
+                }
             },
-            rowToDetail(idRow){
-                this.teamIdToDetail = idRow
+            tableRowDataFilteredToDetail(el){
+                this.tableRowDataFiltered = el;
             }
         }
     };

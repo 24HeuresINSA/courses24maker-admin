@@ -4,19 +4,22 @@
       <card class="card">
         <custom-table :tableColumnData="tableColumnData" :tableColumnDataDefault="tableColumnDataDefault" :tableRowData="tableRowData" :loadingEnded="loadingEnded"
                       :modifyInTheTable="false" :tableTitle="tableTitle" :rowIdKey="rowIdKey" :pageName="pageName"
-                      @reload="reload" @toggleSpinner="toggleSpinner" @rowToDetail="rowToDetail" @openModalNewRow="openModalNewRow" @openModalUpdateRow="openModalUpdateRow" @tableRowDataFiltered="tableRowDataFilteredToDetail"></custom-table>
+                      @reload="reload" @toggleSpinner="toggleSpinner" @rowToDetail="rowToDetail" @openModalNewRow="openModalNewRow"
+                      @openModalUpdateRow="openModalUpdateRow" @tableRowDataFiltered="tableRowDataFilteredToDetail">
+        </custom-table>
       </card>
       <b-row class="" style="">
         <b-col class="m-auto">
           <card style="background-color: white">
             <div class="text-center h3" style="color: #000033">TEAM DETAILS</div>
             <b-col cols="12" class="pt-0 pb-1 d-inline-block" v-for="(item, index) in this.tableRowDataFiltered">
-              <team-card-detail :key="index" :teamData="item" :teamId="teamIdToDetail" @openModalUpdateRow="openModalUpdateRow"></team-card-detail>
+              <team-card-detail :key="index" :teamData="item" :teamId="teamIdToDetail" @openModalUpdateRow="openModalUpdateRow" @openModalUpdateRowPwd="openModalUpdateRowPwd"></team-card-detail>
             </b-col>
           </card>
         </b-col>
       </b-row>
       <team-modal :teamIdToUpdate="teamIdToUpdate" :addNewRowModal="openNewRowModal" :updateRowModal="updateRowModal" :show="showModal"></team-modal>
+      <team-modal-pwd :teamIdToUpdate="teamIdToUpdate" :updateRowModal="updateRowModalPwd" :show="showModalPwd"></team-modal-pwd>
     </div>
   </div>
 </template>
@@ -25,6 +28,7 @@
     import NotificationTemplate from "./Notifications/NotificationTemplate";
     import TeamCardDetail from "../components/TeamCardDetail";
     import TeamModal from "../components/TeamModal";
+    import TeamModalPwd from "../components/TeamModalPwd";
 
     const tableColumnDataDefault = {
         team_id: {label: "Id", display: false, editable: false},
@@ -46,7 +50,8 @@
         components: {
             CustomTable,
             TeamCardDetail,
-            TeamModal
+            TeamModal,
+            TeamModalPwd
         },
         data() {
             return {
@@ -62,7 +67,9 @@
                 teamIdToUpdate: "",
                 openNewRowModal: false,
                 updateRowModal: false,
-                showModal: false
+                updateRowModalPwd: false,
+                showModal: false,
+                showModalPwd: false
             };
         },
         mounted(){
@@ -160,6 +167,45 @@
                     this.toggleLoadingValue();
                 })
             },
+            validChangePwd(updatedRowPwd, idRow){
+                this.axios.request({
+                    url: "/teams/"+idRow,
+                    method: "put",
+                    data: {
+                        team: {team_password: updatedRowPwd}
+                    }
+                })
+                    .then(response => {
+                        this.axios.request({
+                            url: "/teams/?participants=true&category=true&manager=true",
+                            method: "get"
+                        })
+                            .then(response2 => {
+                                this.toggleSpinner();
+                                this.tableRowData = response2.data.teams.filter(el => {
+                                    el.team_category_label = el.team_category.category_label;
+                                    if(el.team_manager) {
+                                        el.team_manager_name = el.team_manager.participant_name;
+                                        el.team_manager_surname = el.team_manager.participant_surname;
+                                        el.team_manager_telephone = el.team_manager.participant_telephone;
+                                        el.team_manager_email = el.team_manager.participant_email;
+                                    }
+                                    if(el.team_participants) {
+                                        el.team_number_participant = el.team_participants.length;
+                                    }
+                                    return el;
+                                });
+                                this.notifyVueSuccess("Team password updated !");
+                                this.showModalPwd = false;
+                                this.toggleLoadingValue();
+                            })
+                    })
+                    .catch(error => {
+                        this.toggleSpinner();
+                        this.notifyVue(error.response.data.message.en);
+                        this.toggleLoadingValue();
+                    })
+            },
             newRow(newRow){
                 this.axios.request({
                     url: "/teams/",
@@ -246,6 +292,15 @@
                     this.updateRowModal = false;
                 }else{
                     this.updateRowModal = true;
+                }
+            },
+            openModalUpdateRowPwd(idRow){
+                this.showModalPwd = true;
+                this.teamIdToUpdate = idRow;
+                if(this.updateRowModalPwd==true){
+                    this.updateRowModalPwd = false;
+                }else{
+                    this.updateRowModalPwd = true;
                 }
             },
             rowToDetail(idRow){

@@ -68,9 +68,9 @@
                     categories: [],
                     teams: [],
                     student: [{value:0, text:'No'}, {value:1, text:'Yes'}],
-                    certificate_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'}],
-                    certificate_student_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'},{value:3, text:'Not necessary'}],
-                    payment_validity: [{value:0, text:'Not provided'},{value:1, text:'Valid'},{value:2, text:'Partial'}],
+                    certificate_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'}, {value:3, text:'To check'}],
+                    certificate_student_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'},{value:3, text:'To check'}, {value:4, text:'Not necessary'}],
+                    payment_validity: [{value:0, text:'Not provided'},{value:1, text:'Valid'},{value:2, text:'Partial'}, {value: 3, text:'To check'}],
                     teeshirt_size: [{value:"NO", text:"NO"},{value:"S", text:"S"},{value:"M", text:"M"},{value:"L", text:"L"},{value:"XL", text:"XL"}],
                 },
                 titleModal: "",
@@ -115,6 +115,9 @@
                     case 2:
                         return "outline-danger";
                         break;
+                    case 3:
+                        return "outline-primary";
+                        break;
                     default:
                         return "";
                         break;
@@ -132,6 +135,9 @@
                         return "outline-danger";
                         break;
                     case 3:
+                        return "outline-primary";
+                        break;
+                    case 4:
                         return "outline-success";
                         break;
                     default:
@@ -162,6 +168,9 @@
                         break;
                     case 2:
                         return "outline-warning";
+                        break;
+                    case 3:
+                        return "outline-primary";
                         break;
                     default:
                         return "";

@@ -9,12 +9,12 @@
     <!-- -->
     <div class="sidebar-wrapper" id="style-3">
       <div class="logo">
-        <a href="#" class="simple-text">
-            <div class="logo-img">
-                <img src="@/assets/img/vue-logo.png" alt="">
-            </div>
+        <div class="pt-4" style="text-align: center">
+            <img src="@/assets/img/logo_24h_generique_courses_jaune_sf2.png" style="width: 60%;">
+        </div>
+        <div class="text-center pt-4 pb-2" style="color: white; font-weight: bold; font-size: 20px">
           {{title}}
-        </a>
+        </div>
       </div>
       <slot>
 
@@ -93,7 +93,7 @@ export default {
      * @returns {{transform: string}}
      */
     arrowMovePx() {
-      return this.linkHeight * this.activeLinkIndex;
+      return this.linkHeight * this.activeLinkIndex + 164;
     }
   },
   data() {

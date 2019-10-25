@@ -7,6 +7,7 @@
       <h6 class="m-1 "><b-badge variant="light"><font-awesome-icon icon="birthday-cake"/></b-badge> {{participantData.participant_birthdate}} &nbsp;|&nbsp; {{participant_age}} yo</h6>
       <h6 class="m-1 "><b-badge variant="light"><font-awesome-icon icon="dollar-sign"/></b-badge>&nbsp;<b-badge :variant="payment_status.color">{{payment_status.label}}</b-badge></h6>
       <h6 class="m-1 "><b-badge variant="light"><font-awesome-icon icon="graduation-cap"/></b-badge>&nbsp;<b-badge :variant="student_status.color">{{student_status.label}}</b-badge></h6>
+      <h6 class="m-1 "><b-badge variant="light"><font-awesome-icon icon="graduation-cap"/></b-badge>&nbsp;<b-badge :variant="certificate_student_status.color">{{certificate_student_status.label}}</b-badge></h6>
       <h6 class="m-1 "><b-badge variant="light"><font-awesome-icon icon="file-medical"/></b-badge>&nbsp;<b-badge :variant="certificate_status.color" id="certificate-status">{{certificate_status.label}}</b-badge></h6>
       <h6 class="m-1 "><b-badge variant="light"><font-awesome-icon icon="tshirt"/></b-badge>&nbsp;{{participantData.participant_tee_shirt_size}}</h6>
       <h6 class="m-1 " style="text-transform: none"><b-badge variant="light"><font-awesome-icon icon="users"/></b-badge>&nbsp;{{team_of_participant.name}} <span class="font-italic" style="color: #5e5e5e">({{team_of_participant.category}})</span></h6>
@@ -50,6 +51,15 @@ export default {
               case 0: return {color:"danger" ,label:"Not uploaded"}; break;
               case 1: return {color:"success" ,label:"Valid"}; break;
               case 2: return {color:"danger" ,label:"Unvalid/Fake"}; break;
+              default: return "Error";
+          }
+      },
+      certificate_student_status: function(){
+          switch(this.participantData.participant_student_certificate_valid){
+              case 0: return {color:"danger" ,label:"Not uploaded"}; break;
+              case 1: return {color:"success" ,label:"Valid"}; break;
+              case 2: return {color:"danger" ,label:"Unvalid/Fake"}; break;
+              case 3: return {color:"success" ,label:"Not necessary"}; break;
               default: return "Error";
           }
       },

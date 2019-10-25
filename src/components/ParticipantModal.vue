@@ -25,7 +25,10 @@
           <b-form-group label="Student" size="sm">
             <b-form-radio-group v-model="form.participant.participant_student" :options="optionsModal.student" buttons :button-variant="student_button_color" size="sm" name="radio-btn-outline"></b-form-radio-group>
           </b-form-group>
-          <b-form-group label="Certificate validity" size="sm">
+          <b-form-group label="Student certificate validity" size="sm">
+            <b-form-radio-group v-model="form.participant.participant_student_certificate_valid" :options="optionsModal.certificate_student_validity" buttons :button-variant="certificate_student_validity_button_color" size="sm" name="radio-btn-outline"></b-form-radio-group>
+          </b-form-group>
+          <b-form-group label="Medical certificate validity" size="sm">
             <b-form-radio-group v-model="form.participant.participant_medical_certificate_valid" :options="optionsModal.certificate_validity" buttons :button-variant="certificate_validity_button_color" size="sm" name="radio-btn-outline"></b-form-radio-group>
           </b-form-group>
           <b-form-group label="Payment validity" size="sm">
@@ -66,6 +69,7 @@
                     teams: [],
                     student: [{value:0, text:'No'}, {value:1, text:'Yes'}],
                     certificate_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'}],
+                    certificate_student_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'},{value:3, text:'Not necessary'}],
                     payment_validity: [{value:0, text:'Not provided'},{value:1, text:'Valid'},{value:2, text:'Partial'}],
                     teeshirt_size: [{value:"NO", text:"NO"},{value:"S", text:"S"},{value:"M", text:"M"},{value:"L", text:"L"},{value:"XL", text:"XL"}],
                 },
@@ -110,6 +114,25 @@
                         break;
                     case 2:
                         return "outline-danger";
+                        break;
+                    default:
+                        return "";
+                        break;
+                }
+            },
+            certificate_student_validity_button_color: function(){
+                switch(this.form.participant.participant_student_certificate_valid){
+                    case 0:
+                        return "outline-danger";
+                        break;
+                    case 1:
+                        return "outline-success";
+                        break;
+                    case 2:
+                        return "outline-danger";
+                        break;
+                    case 3:
+                        return "outline-success";
                         break;
                     default:
                         return "";

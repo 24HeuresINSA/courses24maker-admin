@@ -51,7 +51,9 @@
     </b-modal>
   </div>
 </template>
+<style>
 
+</style>
 <script>
     export default {
         name: 'participant-modal',
@@ -68,8 +70,8 @@
                     categories: [],
                     teams: [],
                     student: [{value:0, text:'No'}, {value:1, text:'Yes'}],
-                    certificate_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'}, {value:3, text:'To check'}],
-                    certificate_student_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Invalid/Fake'},{value:3, text:'To check'}, {value:4, text:'Not necessary'}],
+                    certificate_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Rejected'}, {value:3, text:'To check'}],
+                    certificate_student_validity: [{value:0, text:'Not uploaded'},{value:1, text:'Valid'},{value:2, text:'Rejected'},{value:3, text:'To check'}, {value:4, text:'Not necessary'}],
                     payment_validity: [{value:0, text:'Not provided'},{value:1, text:'Valid'},{value:2, text:'Partial'}, {value: 3, text:'To check'}],
                     teeshirt_size: [{value:"NO", text:"NO"},{value:"S", text:"S"},{value:"M", text:"M"},{value:"L", text:"L"},{value:"XL", text:"XL"}],
                 },

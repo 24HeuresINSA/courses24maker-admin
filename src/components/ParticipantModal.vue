@@ -115,6 +115,9 @@
                     case 2:
                         return "outline-danger";
                         break;
+                    case 3:
+                        return "outline-primary";
+                        break;
                     default:
                         return "";
                         break;
@@ -132,6 +135,9 @@
                         return "outline-danger";
                         break;
                     case 3:
+                        return "outline-primary";
+                        break;
+                    case 4:
                         return "outline-success";
                         break;
                     default:
@@ -162,6 +168,9 @@
                         break;
                     case 2:
                         return "outline-warning";
+                        break;
+                    case 3:
+                        return "outline-primary";
                         break;
                     default:
                         return "";

@@ -43,6 +43,7 @@ export default {
               case 0: return {color:"danger" ,label:"Unpaid"}; break;
               case 1: return {color:"success" ,label:"Ok"}; break;
               case 2: return {color:"warning" ,label:"Incomplete"}; break;
+              case 3: return {color:"primary" ,label:"To check"}; break;
               default: return "Error";
           }
       },
@@ -51,6 +52,7 @@ export default {
               case 0: return {color:"danger" ,label:"Not uploaded"}; break;
               case 1: return {color:"success" ,label:"Valid"}; break;
               case 2: return {color:"danger" ,label:"Unvalid/Fake"}; break;
+              case 3: return {color:"primary" ,label:"To check"}; break;
               default: return "Error";
           }
       },
@@ -59,7 +61,8 @@ export default {
               case 0: return {color:"danger" ,label:"Not uploaded"}; break;
               case 1: return {color:"success" ,label:"Valid"}; break;
               case 2: return {color:"danger" ,label:"Unvalid/Fake"}; break;
-              case 3: return {color:"success" ,label:"Not necessary"}; break;
+              case 3: return {color:"primary" ,label:"To check"}; break;
+              case 4: return {color:"success" ,label:"Not necessary"}; break;
               default: return "Error";
           }
       },

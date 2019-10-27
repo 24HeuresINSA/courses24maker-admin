@@ -100,9 +100,6 @@
                     console.log('err')
                 });
         },
-        destroyed() {
-            localStorage.clear();
-        },
         methods: {
             notifyVue(message) {
                 this.$notify({

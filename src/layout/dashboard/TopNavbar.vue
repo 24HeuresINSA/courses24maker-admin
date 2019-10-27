@@ -14,7 +14,7 @@
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a href="/logout" class="nav-link">
+            <a href="" @click="logout" class="nav-link">
               <i class="ti-power-off"></i>
               <p>
                 Logout
@@ -53,6 +53,10 @@ export default {
     },
     hideSidebar() {
       this.$sidebar.displaySidebar(false);
+    },
+    logout(){
+        localStorage.clear();
+        window.location.href = '/dashboard';
     }
   }
 };

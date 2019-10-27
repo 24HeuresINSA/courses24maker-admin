@@ -26,7 +26,7 @@ Vue.use(VueSessionStorage);
 Vue.component('v-select', vSelect)
 Vue.component('downloadCsv', JsonCSV);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-Vue.axios.defaults.headers = { 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3Vyc2VzLWFwaS0yNGhpbnNhIiwiYXVkIjoiY291cnNlcy1hZG1pbi0yNGhpbnNhIiwic3ViIjoiY291cnNlcy1hZG1pbi0yNGhpbnNhIiwic2NvcGUiOiJhZG1pbiIsImlhdCI6MTU2NDQ4NDMzMX0.7COv0CGADczXXOqlP0b1AutT0EoSBlSwSjeC8RUOOIM' };
+Vue.axios.defaults.headers = { 'Authorization': 'Bearer '+ localStorage.getItem("jwt") }
 Vue.config.productionTip = false;
 
 Vue.use(PaperDashboard);

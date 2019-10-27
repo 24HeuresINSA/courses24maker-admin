@@ -6,7 +6,6 @@ import VueAxios from 'vue-axios';
 
 // config api requests
 axios.defaults.baseURL = "http://localhost:3020/";
-axios.defaults.headers.common['Authorization'] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3Vyc2VzLWFwaS0yNGhpbnNhIiwiYXVkIjoiY291cnNlcy1hZG1pbi0yNGhpbnNhIiwic3ViIjoiY291cnNlcy1hZG1pbi0yNGhpbnNhIiwic2NvcGUiOiJhZG1pbiIsImlhdCI6MTU2ODg5NDU2Nn0.cSgrgkzC0amaXZ7_oinXaOMynmdbskvLqbJy_1TeU-o";
 
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
@@ -16,6 +15,47 @@ const router = new VueRouter({
   mode: 'history',
   routes, // short for routes: routes
   linkActiveClass: "active"
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.fullPath != '/login') {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (localStorage.getItem('jwt') == null) {
+        next({
+          path: '/login',
+          params: {nextUrl: to.fullPath}
+        })
+      } else {
+        let user = localStorage.getItem('user');
+        let isAdmin = localStorage.getItem('isAdmin');
+        if (to.matched.some(record => record.meta.isAdmin)) {
+          if (isAdmin == "true") {
+            next();
+          } else {
+            next({
+              path: '/login',
+              params: {nextUrl: to.fullPath}
+            })
+          }
+        } else {
+          next()
+        }
+      }
+    } else if (to.matched.some(record => record.meta.guest)) {
+      if (localStorage.getItem('jwt') == null) {
+        next()
+      } else {
+        next({
+          path: '/login',
+          params: {nextUrl: to.fullPath}
+        })
+      }
+    } else {
+      next()
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

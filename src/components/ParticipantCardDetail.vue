@@ -13,7 +13,11 @@
       <h6 class="m-1 " style="text-transform: none"><b-badge variant="light"><font-awesome-icon icon="users"/></b-badge>&nbsp;{{team_of_participant.name}} <span class="font-italic" style="color: #5e5e5e">({{team_of_participant.category}})</span></h6>
       <h6 class="m-1 " style="text-transform: none"><b-badge variant="light"><font-awesome-icon icon="comment"/></b-badge>&nbsp;{{participantData.participant_comment}}</h6>
       <h6 class="m-1 " style="text-transform: none"><b-badge variant="light"><font-awesome-icon icon="reply-all"/></b-badge>&nbsp;{{participantData.participant_message}}</h6>
-      <h6 class="text-center"><button class="btn btn-sm btn-primary m-auto btn-modify-row" @click="modifyRow"><span class="ti-pencil"> </span> Edit</button></h6>
+      <h6 class="text-center">
+        <button class="btn btn-sm btn-primary m-auto btn-modify-row" @click="modifyRow"><span class="ti-pencil"> </span> Edit</button>&nbsp;
+        <button v-show="participantData.participant_medical_certificate_file" class="btn btn-sm btn-secondary m-auto" @click="openMedicalCertificate"><font-awesome-icon icon="file-medical"/> MC</button>&nbsp;
+        <button v-show="participantData.participant_student_certificate_file" class="btn btn-sm btn-secondary m-auto" @click="openStudentCertificate"><font-awesome-icon icon="graduation-cap"/> SC</button>&nbsp;
+      </h6>
     </card>
 </template>
 <script>
@@ -99,6 +103,34 @@ export default {
   methods: {
       modifyRow: function(el){
           this.$emit("openModalUpdateRow", this.participantData.participant_id);
+      },
+      openMedicalCertificate: function(el){
+          this.axios.request({
+              url: "/participants/medical-certificate-file/"+this.participantData.participant_id,
+              responseType: 'blob',
+              method: "get",
+          })
+          .then(response => {
+              var fileURL = window.URL.createObjectURL(new Blob([response.data], {type: response.headers["content-type"]}));
+              var win = window.open(fileURL, "_blank");
+          })
+          .catch(err => {
+              console.log(err);
+          });
+      },
+      openStudentCertificate: function(el){
+          this.axios.request({
+              url: "/participants/student-certificate-file/"+this.participantData.participant_id,
+              responseType: 'blob',
+              method: "get",
+          })
+              .then(response => {
+                  var fileURL = window.URL.createObjectURL(new Blob([response.data], {type: response.headers["content-type"]}));
+                  var win = window.open(fileURL, "_blank");
+              })
+              .catch(err => {
+                  console.log(err);
+              });
       }
   }
 };

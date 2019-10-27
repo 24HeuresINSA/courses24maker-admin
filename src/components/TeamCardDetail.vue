@@ -15,9 +15,11 @@
 import $ from 'jquery';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import ParticipantOfTeamCardDetail from "./ParticipantOfTeamCardDetail";
+import ParticipantCardDetail from "./ParticipantCardDetail";
 export default {
   components: {
       ParticipantOfTeamCardDetail,
+      ParticipantCardDetail,
       FontAwesomeIcon
   },
   name: 'team-card-detail',

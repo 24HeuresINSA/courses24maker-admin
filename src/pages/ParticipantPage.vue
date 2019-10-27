@@ -34,9 +34,9 @@
         participant_birthdate: {label: "Birthdate", display: true, editable: true},
         participant_student: {label: "Student ?", display: true, editable: true},
         participant_medical_certificate_valid: {label: "Medical Certificate ?", display: true, editable: true},
-        participant_medical_certificate_file: {label: " Medical Certificate", display: false, editable: false},
+        //participant_medical_certificate_file: {label: " Medical Certificate", display: false, editable: false},
         participant_student_certificate_valid: {label: "Student Certificate ?", display: true, editable: true},
-        participant_student_certificate_file: {label: " Student Certificate", display: false, editable: false},
+        //participant_student_certificate_file: {label: " Student Certificate", display: false, editable: false},
         participant_payment: {label: "Payment ?", display: true, editable: true},
         participant_tee_shirt_size: {label: "Tee-shirt Size", display: true, editable: true},
         participant_comment: {label: "Comment", display: false, editable: true},
@@ -99,6 +99,9 @@
                 .catch(errors => {
                     console.log('err')
                 });
+        },
+        destroyed() {
+            localStorage.clear();
         },
         methods: {
             notifyVue(message) {

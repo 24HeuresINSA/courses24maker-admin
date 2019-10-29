@@ -97,7 +97,7 @@
                     });
                 })
                 .catch(errors => {
-                    console.log('err')
+                    console.log(errors)
                 });
         },
         methods: {

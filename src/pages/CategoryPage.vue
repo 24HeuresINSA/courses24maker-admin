@@ -73,7 +73,7 @@
                     this.tableRowData = results[0].data.categories;
                 })
                 .catch(errors => {
-                    console.log('err')
+                    console.log(errors)
                 });
         },
         methods: {

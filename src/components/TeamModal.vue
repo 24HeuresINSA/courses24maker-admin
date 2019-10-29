@@ -182,7 +182,6 @@
                 delete this.form.team.team_participants;
                 delete this.form.team.team_category;
                 if (this.newRow == true) {
-                    console.log(this.form)
                     this.$parent.toggleSpinner();
                     this.$parent.newRow(this.form);
                 } else {

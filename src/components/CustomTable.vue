@@ -234,7 +234,6 @@ export default {
                   }
               }
           } else {
-              console.log(element.parent().parent().parent().children());
               element.parent().parent().parent().children("tr").css("background-color", "rgb(255, 252, 244)");
               element.parent().parent().css("background-color","rgba(158, 233, 244, 0.3)");
               this.$emit("rowToDetail", idRow);

@@ -146,7 +146,6 @@
                     this.$parent.newRow(this.form.category);
                 } else {
                     this.$parent.toggleSpinner();
-                    console.log(this.form.category)
                     this.$parent.validChange(this.form.category, this.categoryIdToUpdate);
                 }
             },

@@ -1,0 +1,20 @@
+version: "3.3"
+services:
+
+  courses24maker-admin-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: courses24maker-admin
+    container_name: courses24maker-admin-container
+    ports:
+      - 3021:3021 #Replace the first number by the port you want the database can be called outside docker containers
+    networks:
+      courses24maker-network:
+        aliases:
+          - courses24maker-admin-service
+
+networks:
+  courses24maker-network:
+    external: true
+

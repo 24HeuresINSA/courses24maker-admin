@@ -3,9 +3,14 @@ import VueRouter from "vue-router";
 import routes from "./routes";
 import axios from 'axios'
 import VueAxios from 'vue-axios';
+import serverConfig from './../config/config';
 
 // config api requests
-axios.defaults.baseURL = "http://localhost:3020/";
+if (process.env.NODE_ENV == 'development') {
+  axios.defaults.baseURL = serverConfig["courses24maker-api-server-dev"];
+} else if (process.env.NODE_ENV == 'production') {
+  axios.defaults.baseURL = serverConfig["courses24maker-api-server-prod"];
+}
 
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);

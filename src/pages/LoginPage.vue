@@ -42,7 +42,7 @@ export default {
             window.location.href = '/dashboard';
           })
           .catch(error => {
-              if(error.hasOwnProperty("response")) {
+              if(error.hasOwnProperty("response") && error.response.hasOwnProperty("data") && error.response.data.hasOwnProperty("message")) {
                   this.$notify({
                       component: NotificationTemplate,
                       horizontalAlign: 'center',

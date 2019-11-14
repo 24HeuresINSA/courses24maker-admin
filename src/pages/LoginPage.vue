@@ -51,6 +51,15 @@ export default {
                       message: error.response.data.message.en,
                       timeout: 5000
                   });
+              } else {
+                  this.$notify({
+                      component: NotificationTemplate,
+                      horizontalAlign: 'center',
+                      verticalAlign: 'top',
+                      type: "danger",
+                      message: "Internal error, API not reachable",
+                      timeout: 5000
+                  });
               }
           });
 
